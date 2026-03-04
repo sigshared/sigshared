@@ -1,0 +1,28 @@
+
+# In node-0
+compile the files in /mydata/sigshared with:
+make all
+
+go to /mydata/sigshared/experiments/online-boutique/ and run:
+./run_sigshared.sh sigshared
+
+make sure to use the correct interface for XDP program to attach
+
+to end tmux: 
+Crtl+b d
+
+and:
+tmux kill-session -t sigshared && sudo rm ../../dados/*
+
+# In node-1
+
+Install locust and run:
+./run_load_generators.sh sigshared 10.10.1.1 8080
+
+to end tmux: 
+Crtl+b d
+
+tmux kill-session -t sigshared
+
+After the experiment end consolidate data:
+./consolidate_locust_stats.sh sigshared
