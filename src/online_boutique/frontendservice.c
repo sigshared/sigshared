@@ -44,6 +44,8 @@
 #include <sys/signalfd.h>
 #include "../sigshared.h"
 
+#define MAX_CONTAINERS 11
+
 int mapa_fd;
 int matriz[11][2] = {0};
 sigset_t set;
@@ -552,7 +554,7 @@ void consulta_mapa(int fd_mapa_sinal, int nf_id, pid_t pid){
     perror("Erro ao consultar o mapa eBPF"); 
 }
 
-void *signal_rcv_config(){
+void signal_rcv_config(){
 
 	char temp[256];
 	char *dir_temp = getenv("SIGSHARED");
@@ -560,8 +562,8 @@ void *signal_rcv_config(){
     	int fd_mapa_sinal = bpf_obj_get(temp);
 	
 	siginfo_t data_rcv;
-	//printf("Esperando sinal...\n");
-	while (sigwaitinfo(&set2, &data_rcv) > 0){
+	//while (sigwaitinfo(&set2, &data_rcv) > 0){
+	for(int i=0; (sigwaitinfo(&set2, &data_rcv) > 0) && i < MAX_CONTAINERS; i++){
 
 		pid_t pid_emissor = data_rcv.si_pid;
 		int nf_id_rcv = (uint64_t )data_rcv.si_value.sival_ptr;
@@ -571,7 +573,7 @@ void *signal_rcv_config(){
 		
 	}
 
-	return;
+	//return;
 }
 
 /* TODO: Cleanup on errors */
@@ -589,8 +591,8 @@ static int nf(uint8_t nf_id){
     
     matriz[nf_id][1] = pid;
     if(unlikely( sigshared_update_map("mapa_sinal", fn_id, pid, &mapa_fd) < 0 ) ){
-        printf("Erro ao atualizar mapa\n");
-                return 0;
+        printf("Error to update eBPF map\n");
+        return 0;
     }
 
     char temp[256];
@@ -607,7 +609,7 @@ static int nf(uint8_t nf_id){
     matriz[0][1] = pid_gateway;
 
 
-    ret = pthread_create(&thread_signal, NULL, &signal_rcv_config, NULL);
+    ret = pthread_create(&thread_signal, NULL, (void *)&signal_rcv_config, NULL);
     if (unlikely(ret != 0)){
         log_error("pthread_create() error: %s", strerror(ret));
         return -1;
