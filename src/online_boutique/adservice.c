@@ -504,7 +504,7 @@ static int nf(uint8_t nf_id)
 
     matriz[1][1] = pid_front;
     sigval_t data_send;
-    data_send.sival_ptr = (void *)nf_id;
+    data_send.sival_ptr = (void *)(uintptr_t)nf_id;
     if(sigqueue(pid_front, SIGRTMIN+2, data_send) < 0){
         perror("Error to send signal to gateway");
     }
