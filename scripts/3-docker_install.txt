@@ -29,7 +29,7 @@ $ ./scripts/3-docker_install.sh
 
 $ source ~/.bashrc
 
-$ ./3-k8s_install.sh slave
+$ ./scripts/3-k8s_install.sh slave
 
 # Use the token returned from the master node (**node-0**) to join the Kubernetes control plane. Run `sudo kubeadm join ...` with the token just saved. Please run the `kubeadm join` command with *sudo*
 $ sudo kubeadm join <control-plane-token>
