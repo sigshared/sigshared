@@ -502,13 +502,10 @@ static int nf(uint8_t nf_id)
 
     matriz[1][1] = pid_front;
     sigval_t data_send;
-    data_send.sival_ptr = (void *)nf_id;
+    data_send.sival_ptr = (void *)(uintptr_t)nf_id;
     if(sigqueue(pid_front, SIGRTMIN+2, data_send) < 0){
         perror("Error to send signal to gateway");
     }
-
-
-
 
 
     for (i = 0; i < sigshared_cfg->nf[fn_id - 1].n_threads; i++)
@@ -528,7 +525,7 @@ static int nf(uint8_t nf_id)
         }
     }
 
-    // IO_RX
+    
     ret = pthread_create(&thread_rx, NULL, &nf_rx, NULL);
     if (unlikely(ret != 0))
     {
@@ -536,7 +533,7 @@ static int nf(uint8_t nf_id)
         return -1;
     }
 
-    // IO_TX
+    
     ret = pthread_create(&thread_tx, NULL, &nf_tx, NULL);
     if (unlikely(ret != 0))
     {
@@ -544,7 +541,7 @@ static int nf(uint8_t nf_id)
         return -1;
     }
 
-    // Cria WORKERS
+    
     for (i = 0; i < sigshared_cfg->nf[fn_id - 1].n_threads; i++)
     {
         ret = pthread_create(&thread_worker[i], NULL, &nf_worker, (void *)(uint64_t)i);
@@ -555,7 +552,7 @@ static int nf(uint8_t nf_id)
         }
     }
 
-    // Espera as workers terminarem
+    
     for (i = 0; i < sigshared_cfg->nf[fn_id - 1].n_threads; i++)
     {
         ret = pthread_join(thread_worker[i], NULL);
