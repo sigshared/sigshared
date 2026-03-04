@@ -38,6 +38,7 @@
 #include "./log/log.h"
 #include "./include/spright.h"
 
+#define MAX_CONTAINERS 11
 
 pid_t pid_alvo = -1;
 int sigrtmin1 = 35;//SIGRTMIN+1;
@@ -50,42 +51,25 @@ void io_rx( void **obj, void *sigshared_ptr, sigset_t *set, int matriz[][2]){
 	siginfo_t data_rcv;
 
 	if( likely( sigwaitinfo(set, &data_rcv) > 0) ){
-		
+
 		addr = (uint64_t)data_rcv.si_value.sival_ptr;
 		pid_t pid_emissor = data_rcv.si_pid;
-		
-		// signal from frontend
-		//if (pid_emissor == matriz[1][1]){ 
-		//
-		//    if(addr >= 0 && addr < N_ELEMENTS){
-		//	sigshared_mempool_access(obj, addr);
-		//	return;
-		//    }
-		//    else{
-		//	printf("Invalid addr\n");
-		//	return;
-	 	//    }
-		//}
-		//else{
-			for(i=0 ; i < 11; i++){
-				if (matriz[i][1] == pid_emissor){
 
-					if(addr >= 0 && addr < N_ELEMENTS){
-						sigshared_mempool_access(obj, addr);
-						return;
-					}
-					else{
-						printf("Invalid addr\n");
-						return;
-					}
+		for(i=0 ; i < MAX_CONTAINERS; i++){
+			if (matriz[i][1] == pid_emissor){
 
-
-
-
+				if(addr >= 0 && addr < N_ELEMENTS){
+					sigshared_mempool_access(obj, addr);
+					return;
 				}
+				else{
+					printf("Invalid addr\n");
+					return;
+				}
+
 			}
-			printf("Invalid addr\n");
-		//}
+		}
+		printf("Invalid addr\n");
 
 		//if(addr >= 0 && addr < N_ELEMENTS){
 		//	sigshared_mempool_access(obj, addr);
